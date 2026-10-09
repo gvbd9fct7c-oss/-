@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#050916">
+<title>Живая карта счастья</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600&display=swap');
+:root{--bg:#050916;--panel:#0a1226;--gold:#f4cd7b;--gold2:#ffe7ae;--muted:#bac4dc;--line:rgba(244,205,123,.28)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:#f8f5ef;font-family:Manrope,Arial,sans-serif;overflow-x:hidden}
+button,input,textarea,select{font:inherit}button{cursor:pointer}
+#sky{position:fixed;inset:0;width:100%;height:100%;z-index:-2;pointer-events:none}
+body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 76% 28%,rgba(26,64,130,.25),transparent 40%),linear-gradient(180deg,rgba(3,7,18,.2),#050916 92%)}
+header{height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,5vw,76px);border-bottom:1px solid rgba(255,255,255,.06);position:relative;z-index:2}
+.brand{display:flex;align-items:center;gap:12px;font-family:"Cormorant Garamond",serif;font-size:24px}.brand-star{color:var(--gold);font-size:31px;text-shadow:0 0 18px #ffc85a}
+nav{display:flex;gap:30px}nav a{color:#d7dced;text-decoration:none;font-size:13px}nav a:hover{color:var(--gold)}
+.outline,.primary{border-radius:99px;padding:13px 21px;border:1px solid var(--gold);color:#fff6e2;background:rgba(8,15,31,.65);text-decoration:none;font-size:13px;transition:.2s}
+.outline:hover{background:rgba(244,205,123,.12);box-shadow:0 0 24px #f4cd7b22}
+.hero{min-height:570px;display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:20px;padding:65px clamp(24px,12vw,175px) 72px;position:relative}
+.eyebrow{font-size:10px;letter-spacing:.34em;color:var(--gold);text-transform:uppercase;margin:0 0 22px}
+h1,h2,h3,p{margin-top:0}h1{font:500 clamp(44px,5vw,72px)/.98 "Cormorant Garamond",serif;letter-spacing:-.025em;margin-bottom:25px;max-width:650px}h1 em{color:var(--gold);font-weight:400}
+.lead{font:400 19px/1.55 "Cormorant Garamond",serif;color:#d1d7e7;max-width:430px;margin-bottom:28px}
+.primary{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(110deg,#ffe1a0,#e9b85f);color:#171321;border:0;padding:16px 27px;font-weight:600;box-shadow:0 0 28px #f4cd7b22}.primary:hover{transform:translateY(-2px);box-shadow:0 0 35px #f4cd7b55}
+.note{display:flex;gap:10px;align-items:center;color:#b9c2d8;font-size:12px;margin-top:25px}.note span{color:var(--gold);font-size:18px}
+.orbit-wrap{height:360px;display:grid;place-items:center;position:relative}.orbit{width:min(32vw,340px);aspect-ratio:1;border:1px solid #d6a95c55;border-radius:50%;transform:rotate(-25deg);position:absolute;box-shadow:0 0 35px #d6a95c0a}.orbit:after{content:"";position:absolute;inset:18% -8%;border:1px solid #d6a95c77;border-radius:50%;transform:rotate(54deg)}
+.big-star{font-size:110px;color:#fff0b2;text-shadow:0 0 10px #fff,0 0 30px #ffdb72,0 0 90px #e6a83c;animation:pulse 3s ease-in-out infinite}.star-label{position:absolute;bottom:20px;color:#d7c59d;letter-spacing:.18em;font-size:10px;text-transform:uppercase}
+@keyframes pulse{0%,100%{transform:scale(.96);filter:brightness(.9)}50%{transform:scale(1.07);filter:brightness(1.25)}}
+.section{padding:76px clamp(20px,8vw,110px);position:relative}.section-head{text-align:center;margin-bottom:34px}.section h2{font:500 clamp(34px,4vw,50px)/1.05 "Cormorant Garamond",serif;margin:0 0 13px}.section-intro{color:var(--muted);font-size:14px;line-height:1.7;max-width:620px;margin:0 auto}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}.step{text-align:center;padding:0 10px}.step-icon{width:62px;height:62px;border:1px solid #e8bc69;border-radius:50%;display:grid;place-items:center;color:var(--gold);font-size:27px;margin:0 auto 17px;box-shadow:0 0 24px #e8bc6910}.step-num{color:var(--gold);font:18px "Cormorant Garamond",serif;margin-bottom:9px}.step h3{font:500 23px "Cormorant Garamond",serif;margin-bottom:10px}.step p{color:#bfc8dc;font-size:12px;line-height:1.7}
+.map-section{background:linear-gradient(180deg,#070d1caa,#080f20ee);border-top:1px solid #ffffff0b;border-bottom:1px solid #ffffff0b}
+.map-toolbar{display:flex;justify-content:space-between;align-items:center;gap:18px;margin:26px 0 15px;flex-wrap:wrap}.counter{font-size:13px;color:#c5cee1}.counter strong{font-size:22px;color:var(--gold);font-weight:500;margin-right:5px}
+.mapbox{height:390px;border:1px solid #b9924d55;border-radius:18px;position:relative;overflow:hidden;background:radial-gradient(ellipse at center,#132346 0,#081126 55%,#050916 100%);box-shadow:inset 0 0 90px #0008}
+#mapStars{width:100%;height:100%;display:block;cursor:crosshair}.map-hint{position:absolute;bottom:15px;left:18px;color:#aebbd4;font-size:11px;pointer-events:none;background:#050916a8;padding:8px 11px;border-radius:20px}
+.map-actions{display:flex;gap:10px;align-items:center}.secondary{border:1px solid #d7b46c66;background:#101a30;color:#f2d79a;border-radius:99px;padding:11px 16px;font-size:12px}
+.stories{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px}.story{border:1px solid #d8b36b33;background:linear-gradient(135deg,#0e1930,#080f20);border-radius:14px;padding:20px;min-height:150px}.story .category{font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:12px}.story h3{font:500 23px "Cormorant Garamond",serif;margin-bottom:9px}.story p{font:16px/1.5 "Cormorant Garamond",serif;color:#d4d9e6;margin:0}.empty{text-align:center;padding:35px;color:#aebbd4;font-size:13px}
+.cta{text-align:center;padding:85px 20px 95px;background:radial-gradient(ellipse at 50% 100%,#20345c88,transparent 55%)}.cta h2{font:500 clamp(38px,5vw,58px) "Cormorant Garamond",serif}.cta p{color:#c2cbe0;line-height:1.7;max-width:540px;margin:0 auto 25px}
+footer{border-top:1px solid #ffffff0c;padding:23px;text-align:center;color:#75819b;font-size:11px}
+.modal{position:fixed;inset:0;background:#020510d9;backdrop-filter:blur(8px);z-index:10;display:none;align-items:center;justify-content:center;padding:18px}.modal.open{display:flex}.dialog{width:min(100%,520px);background:linear-gradient(145deg,#111e38,#070d1b);border:1px solid #e6bd6c66;border-radius:20px;padding:28px;box-shadow:0 20px 80px #0009;position:relative}.dialog h2{font:500 34px "Cormorant Garamond",serif;margin-bottom:8px}.dialog>p{color:#bfc8dc;font-size:13px;line-height:1.6}.close{position:absolute;right:16px;top:14px;background:none;border:0;color:#e6d7b5;font-size:25px}.field{display:block;margin-top:15px;color:#dce2ee;font-size:12px}.field input,.field textarea,.field select{display:block;width:100%;margin-top:7px;background:#060c19;color:#f8f5ef;border:1px solid #d9b46755;border-radius:9px;padding:12px;outline:none}.field textarea{min-height:100px;resize:vertical}.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--gold)}.form-foot{font-size:10px;color:#8d9ab5;line-height:1.5;margin:13px 0}.dialog .primary{width:100%;justify-content:center;margin-top:5px}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#182742;border:1px solid #d9b46766;padding:12px 18px;border-radius:99px;color:#fff0c9;font-size:12px;display:none;z-index:20;max-width:90%;text-align:center}
+@media(max-width:850px){nav{display:none}.hero{grid-template-columns:1fr;padding-top:65px;text-align:center}.hero-copy{display:flex;align-items:center;flex-direction:column}.orbit-wrap{height:260px;grid-row:1}.orbit{width:220px}.big-star{font-size:85px}.steps{grid-template-columns:repeat(2,1fr);row-gap:30px}.stories{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){header{height:65px}.brand{font-size:20px}.header-cta{padding:10px 12px;font-size:11px}.hero{padding:35px 22px 55px;gap:0}.orbit-wrap{height:210px}.orbit{width:175px}h1{font-size:46px}.lead{font-size:17px}.section{padding:58px 18px}.steps{gap:24px 12px}.step{padding:0}.step h3{font-size:20px}.step p{font-size:11px}.mapbox{height:320px}.stories{grid-template-columns:1fr}.map-toolbar{align-items:flex-start}.dialog{padding:24px 19px}}
+</style>
+</head>
+<body>
+<canvas id="sky" aria-hidden="true"></canvas>
+<header>
+  <a class="brand" href="#home" style="text-decoration:none;color:inherit"><span class="brand-star">✦</span> Живая карта счастья</a>
+  <nav><a href="#home">Главная</a><a href="#map">Карта</a><a href="#about">О проекте</a><a href="#stories">Истории</a></nav>
+  <button class="outline header-cta" data-open>✦ Зажечь свою звезду</button>
+</header>
+<main>
+<section class="hero" id="home">
+  <div class="hero-copy">
+    <p class="eyebrow">Коллективное созвездие</p>
+    <h1>У каждого счастья<br>есть своя <em>звезда</em></h1>
+    <p class="lead">Мы собираем моменты, которые хочется сохранить навсегда. Поделись своим — и зажги звезду на нашей карте.</p>
+    <button class="primary" data-open>Зажечь свою звезду <span>✦</span></button>
+    <div class="note"><span>✦</span> Каждая история становится частью общего неба</div>
+  </div>
+  <div class="orbit-wrap" aria-hidden="true"><div class="orbit"></div><div class="big-star">✦</div><div class="star-label">Маленький момент · целая вселенная</div></div>
+</section>
+<section class="section" id="about">
+  <div class="section-head"><p class="eyebrow">Как это работает</p><h2>Всего 3 шага</h2><p class="section-intro">Поделись моментом, зажги свою звезду и найди её на общей карте счастья.</p></div>
+  <div class="steps">
+    <article class="step"><div class="step-icon">✦</div><div class="step-num">01</div><h3>Поделись моментом</h3><p>Расскажи о самом счастливом мгновении. Это может быть что угодно — большое или маленькое.</p></article>
+    <article class="step"><div class="step-icon">✧</div><div class="step-num">02</div><h3>Оставь свою звезду</h3><p>Выбери категорию, напиши историю и придумай своей звезде имя.</p></article>
+    <article class="step"><div class="step-icon">✳</div><div class="step-num">03</div><h3>Найди её на карте</h3><p>После проверки история появится на общей карте рядом с моментами других людей.</p></article>
+  </div>
+</section>
+<section class="section map-section" id="map">
+  <div class="section-head"><p class="eyebrow">Наше общее небо</p><h2>Живая карта счастья</h2><p class="section-intro">Нажми на звезду, чтобы открыть историю. Каждая точка здесь — чей-то настоящий момент.</p></div>
+  <div class="map-toolbar"><div class="counter"><strong id="count">6</strong> звёзд на нашем небе</div><div class="map-actions"><button class="secondary" id="showAll">Показать все истории</button><button class="primary" data-open>＋ Добавить момент</button></div></div>
+  <div class="mapbox"><canvas id="mapStars" aria-label="Интерактивная карта звёзд"></canvas><div class="map-hint">✦ Нажми на любую звезду</div></div>
+  <div class="stories" id="stories">
+    <article class="story"><div class="category">Дружба</div><h3>После сложного экзамена</h3><p>«Мы сидели с друзьями на ступеньках, ели булочки и впервые за неделю никуда не торопились».</p></article>
+    <article class="story"><div class="category">Маленькие радости</div><h3>Первый тёплый день</h3><p>«Вышла после пар, почувствовала солнце на лице и поняла, что весна наконец пришла».</p></article>
+    <article class="story"><div class="category">Дом</div><h3>Голос мамы</h3><p>«Позвонила домой просто так. Услышала знакомое “ну как ты?” — и стало спокойно».</p></article>
+  </div>
+</section>
+<section class="cta">
+  <p class="eyebrow">Твоя история важна</p><h2>Зажжём это небо вместе?</h2><p>Возможно, твой маленький момент станет той самой звездой, которой не хватало нашему созвездию.</p><button class="primary" data-open>Зажечь свою звезду ✦</button>
+</section>
+</main>
+<footer>Живая карта счастья · Каждый момент оставляет свет</footer>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="formTitle">
+  <div class="dialog"><button class="close" id="close" aria-label="Закрыть">×</button><p class="eyebrow">Добавь немного света</p><h2 id="formTitle">Зажги свою звезду</h2><p>Поделись моментом, к которому хочется возвращаться. После проверки он сможет появиться на общей карте.</p>
+  <form id="starForm">
+    <label class="field">Название звезды<input name="title" maxlength="48" placeholder="Например, «Вечер у реки»" required></label>
+    <label class="field">Категория<select name="category" required><option value="Дружба">Дружба</option><option value="Любовь">Любовь</option><option value="Свобода">Свобода</option><option value="Музыка">Музыка</option><option value="Дом">Дом</option><option value="Маленькие радости">Маленькие радости</option></select></label>
+    <label class="field">Твой счастливый момент<textarea name="story" maxlength="240" placeholder="Расскажи в нескольких предложениях…" required></textarea></label>
+    <label class="field" style="display:flex;gap:9px;align-items:flex-start;line-height:1.5"><input type="checkbox" name="consent" required style="width:auto;margin:2px 0 0"> Я согласен(на), что история может быть опубликована на карте после модерации.</label>
+    <p class="form-foot">Это демонстрационная версия: отправленная история сохраняется только в этом браузере. Она не отправляется организаторам автоматически.</p>
+    <button class="primary" type="submit">Зажечь звезду ✦</button>
+  </form></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const $=s=>document.querySelector(s);
+const modal=$('#modal'),toast=$('#toast');
+function showToast(msg){toast.textContent=msg;toast.style.display='block';setTimeout(()=>toast.style.display='none',3500)}
+document.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',()=>{modal.classList.add('open');setTimeout(()=>modal.querySelector('input').focus(),100)}));
+$('#close').addEventListener('click',()=>modal.classList.remove('open'));
+modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('open')});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')modal.classList.remove('open')});
+const demo=[
+{title:'После сложного экзамена',category:'Дружба',story:'Мы сидели с друзьями на ступеньках, ели булочки и впервые за неделю никуда не торопились.'},
+{title:'Первый тёплый день',category:'Маленькие радости',story:'Вышла после пар, почувствовала солнце на лице и поняла, что весна наконец пришла.'},
+{title:'Голос мамы',category:'Дом',story:'Позвонила домой просто так. Услышала знакомое «ну как ты?» — и стало спокойно.'},
+{title:'Наша песня',category:'Музыка',story:'Мы услышали нашу песню в случайном кафе и сразу вспомнили тот самый летний вечер.'},
+{title:'Поезд без плана',category:'Свобода',story:'Купили билеты в последний момент и уехали смотреть закат.'},
+{title:'Пять минут тишины',category:'Маленькие радости',story:'Чай, любимая книга и целых пять минут, когда никуда не нужно бежать.'}
+];
+let userStars=[];try{userStars=JSON.parse(localStorage.getItem('happinessStars')||'[]')}catch(e){}
+const allStars=()=>demo.concat(userStars);
+$('#starForm').addEventListener('submit',e=>{
+ e.preventDefault();const f=new FormData(e.target);
+ const s={title:f.get('title').trim(),category:f.get('category'),story:f.get('story').trim(),x:.12+Math.random()*.76,y:.12+Math.random()*.76,user:true};
+ userStars.push(s);try{localStorage.setItem('happinessStars',JSON.stringify(userStars))}catch(err){}
+ modal.classList.remove('open');e.target.reset();drawMap();renderStories();showToast('Твоя звезда зажглась в этом браузере ✦ Для настоящей публикации нужна модерация.');$('#map').scrollIntoView({behavior:'smooth'});
+});
+function renderStories(){const arr=allStars();$('#count').textContent=arr.length;const recent=arr.slice(-3).reverse();$('#stories').innerHTML=recent.map(s=>`<article class="story"><div class="category">${escapeHtml(s.category)}</div><h3>${escapeHtml(s.title)}</h3><p>«${escapeHtml(s.story)}»</p></article>`).join('')}
+function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+const map=$('#mapStars'),ctx=map.getContext('2d');let points=[];
+function resizeMap(){const r=map.getBoundingClientRect(),d=window.devicePixelRatio||1;map.width=Math.round(r.width*d);map.height=Math.round(r.height*d);ctx.setTransform(d,0,0,d,0,0);drawMap()}
+function drawMap(){const r=map.getBoundingClientRect(),w=r.width,h=r.height;ctx.clearRect(0,0,w,h);let seed=89;function rand(){seed=(seed*9301+49297)%233280;return seed/233280}
+ for(let i=0;i<180;i++){ctx.beginPath();let x=rand()*w,y=rand()*h,rad=rand()*1.25;ctx.fillStyle=`rgba(190,211,255,${.15+rand()*.5})`;ctx.arc(x,y,rad,0,Math.PI*2);ctx.fill()}
+ const arr=allStars();points=arr.map((s,i)=>({s,x:s.user?s.x*w:(.12+((i*37)%83)/100)*w,y:s.user?s.y*h:(.13+((i*29)%72)/100)*h}));
+ points.forEach((p,i)=>{let pulse=1+Math.sin(Date.now()/650+i)*.25;ctx.save();ctx.shadowBlur=14*pulse;ctx.shadowColor='#ffd67c';ctx.fillStyle=i>=demo.length?'#fff0b0':'#f4cd7b';ctx.beginPath();ctx.arc(p.x,p.y,(i>=demo.length?3.5:2.6)*pulse,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle='#ffe9b3';ctx.globalAlpha=.8;ctx.beginPath();ctx.moveTo(p.x-6,p.y);ctx.lineTo(p.x+6,p.y);ctx.moveTo(p.x,p.y-6);ctx.lineTo(p.x,p.y+6);ctx.stroke();ctx.restore()});
+}
+function animate(){drawMap();requestAnimationFrame(animate)}
+map.addEventListener('click',e=>{const r=map.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;let p=points.reduce((best,p)=>Math.hypot(p.x-x,p.y-y)<Math.hypot(best.x-x,best.y-y)?p:best,points[0]);if(p&&Math.hypot(p.x-x,p.y-y)<28){alert('✦ '+p.s.title+'\\n'+p.s.category+'\\n\\n'+p.s.story)}else showToast('Выбери одну из светящихся звёзд ✦')});
+$('#showAll').addEventListener('click',()=>{$('#stories').scrollIntoView({behavior:'smooth',block:'center'});showToast('Здесь показаны последние истории на карте')});
+window.addEventListener('resize',resizeMap);resizeMap();renderStories();animate();
+const sky=$('#sky'),sctx=sky.getContext('2d');let bgStars=[];
+function resizeSky(){const d=window.devicePixelRatio||1;sky.width=innerWidth*d;sky.height=innerHeight*d;sky.style.width=innerWidth+'px';sky.style.height=innerHeight+'px';sctx.setTransform(d,0,0,d,0,0);bgStars=Array.from({length:170},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:.3+Math.random()*1.3,a:.15+Math.random()*.65,p:Math.random()*6.28}))}
+function drawSky(){sctx.clearRect(0,0,innerWidth,innerHeight);bgStars.forEach(s=>{let a=s.a*(.7+.3*Math.sin(Date.now()/1200+s.p));sctx.beginPath();sctx.fillStyle=`rgba(220,228,255,${a})`;sctx.arc(s.x,s.y,s.r,0,Math.PI*2);sctx.fill()});requestAnimationFrame(drawSky)}
+window.addEventListener('resize',resizeSky);resizeSky();drawSky();
+</script>
+</body>
+</html>
